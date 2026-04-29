@@ -11,6 +11,10 @@ import javafx.scene.text.Text;
 
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+
+import javafx.scene.control.Tooltip;
 
 /* hier liegt die gesamte Logik für unser Gantt-Diagramm
 wichtig ist: immer von vorne nach hinten arbeiten -> background zu erst usw. denn die Objekte überdecken sich
@@ -29,6 +33,8 @@ public class Gantt extends Pane {
     private static final int TIME_TICK_MINUTES = 60;
 
     private static final double CHART_WIDTH = 900;
+
+    private final List<Rectangle> selectedBars = new ArrayList<>();
 
     public Gantt(Plan plan) {
         draw(plan);
@@ -132,21 +138,28 @@ public class Gantt extends Pane {
         for (PlanObjekt object : plan.getObjects()) {
             int rowIndex = plan.getRowOrder().indexOf(object.getRow());
 
+            // wenn der Index nicht existiert überspringen!
             if (rowIndex < 0) {
                 continue;
             }
 
-            // KI IDK
+            // rechnet den Abstand zwischen Planstart (z.B. 6Uhr) und Objektstart (z.B. 9Uhr) aus
             long startOffset = ChronoUnit.MINUTES.between(plan.getStartTime(), object.getStart());
+            // rechnet den Abstand zwischen Planstart und Objektende aus
             long endOffset = ChronoUnit.MINUTES.between(plan.getStartTime(), object.getEnd());
+            // differenz aus start und ende = dauer des Objekts
             long duration = endOffset - startOffset;
 
+            // startpunkt x-Achse
             double x = LEFT_MARGIN + (startOffset / (double) totalMinutes) * CHART_WIDTH;
+            // Breite des Objekts
             double width = (duration / (double) totalMinutes) * CHART_WIDTH;
+            // Startpunkt y-Achse (mittig zentriert)
             double y = TOP_MARGIN + rowIndex * ROW_HEIGHT + (ROW_HEIGHT - BAR_HEIGHT) / 2.0;
 
-            width = Math.max(width, 6);
+            width = Math.max(width, 6); // mindestbreite 6, sonst wären manche Objekte evt. nicht zu sehen
 
+            // erzeugung Rechteck -> Startpunkt (x,y), Breite, Höhe
             Rectangle bar = new Rectangle(x, y, width, BAR_HEIGHT);
             bar.setFill(Color.STEELBLUE);
             bar.setStroke(Color.BLACK);
@@ -157,6 +170,55 @@ public class Gantt extends Pane {
             label.setFill(Color.WHITE);
             label.setFont(Font.font(12));
 
+            // erzeugung tooltip (infofenster aus javaFX)
+            Tooltip tooltip = new Tooltip(
+                    object.getName() + "\n" +
+                            "Start: " + object.getStart() + "\n" +
+                            "Ende: " + object.getEnd() + "\n" +
+                            "Dauer: " + duration + " min"
+            );
+
+            // Tooltip auf Balken und Text anwenden
+            Tooltip.install(bar, tooltip);
+            Tooltip.install(label, tooltip);
+
+            bar.setOnMouseClicked(event -> {
+
+                // STRG gedrückt → Mehrfachauswahl
+                if (event.isControlDown()) {
+
+                    if (selectedBars.contains(bar)) {
+                        // toggle OFF
+                        bar.setStroke(Color.BLACK);
+                        bar.setStrokeWidth(1);
+                        selectedBars.remove(bar);
+                    } else {
+                        // toggle ON
+                        bar.setStroke(Color.RED);
+                        bar.setStrokeWidth(3);
+                        selectedBars.add(bar);
+                    }
+
+                } else {
+                    // normaler Klick → alles zurücksetzen
+
+                    for (Rectangle selected : selectedBars) {
+                        selected.setStroke(Color.BLACK);
+                        selected.setStrokeWidth(1);
+                    }
+
+                    selectedBars.clear();
+
+                    // aktuelles auswählen
+                    bar.setStroke(Color.RED);
+                    bar.setStrokeWidth(3);
+                    selectedBars.add(bar);
+                }
+            });
+
+            label.setOnMouseClicked(bar.getOnMouseClicked());
+
+            // alles zum Pane hinzufügen
             getChildren().addAll(bar, label);
         }
     }
