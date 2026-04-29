@@ -1,7 +1,12 @@
 ## Planungsphase
+- Entwurf eines ERM
+- Entwurf eines Klassendiagramms
+- JavaFX oder Swing -> JavaFX, weil es mehr Potential hat, deutlich moderner ist & mehr Potential hat und Swing veraltet ist 
 
 
 ## Implementierungsphase
+- Entwurf eines ersten Prototypen eines Plans (Gantt-Diagramm) in Java mit JavaFX & Maven 
+- erste Funktionen: Gantt-Diagramm mit Objekten, Möglichkeit einzelne oder mehrere Objekte zu markieren, Tooltip (Infobox) 
 
-
-## Testen?
+## Testen
+- Manuelles testen -> code ausführen -> Fehlermeldung?, kompiliert der Code? wenn ja: stimmt das UI? 
