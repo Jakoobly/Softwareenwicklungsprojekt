@@ -1,4 +1,6 @@
-package gantt.model;
+package gantt.model.plan;
+
+import gantt.model.objekt.PlanObjekt;
 
 import java.time.LocalTime;
 import java.util.List;

@@ -1,4 +1,4 @@
-package gantt.model;
+package gantt.model.objekt;
 
 import java.time.LocalTime;
 

@@ -1,6 +1,6 @@
 package gantt.controller;
 
-import gantt.model.Plan;
+import gantt.model.plan.Plan;
 import gantt.view.AppLayout;
 import gantt.view.Gantt;
 import gantt.view.Menu;

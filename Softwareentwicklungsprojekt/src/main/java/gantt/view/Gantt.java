@@ -1,7 +1,7 @@
 package gantt.view;
 
-import gantt.model.Plan;
-import gantt.model.PlanObjekt;
+import gantt.model.plan.Plan;
+import gantt.model.objekt.PlanObjekt;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;

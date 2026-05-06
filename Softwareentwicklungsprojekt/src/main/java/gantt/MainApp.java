@@ -1,8 +1,8 @@
 package gantt;
 
 import gantt.controller.GanttController;
-import gantt.model.Plan;
-import gantt.model.PlanObjekt;
+import gantt.model.plan.Plan;
+import gantt.model.objekt.PlanObjekt;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
