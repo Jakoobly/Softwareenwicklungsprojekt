@@ -2,18 +2,18 @@ package gantt.view;
 
 import gantt.model.Plan;
 import gantt.model.PlanObjekt;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.control.Tooltip;
 
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /* hier liegt die gesamte Logik für unser Gantt-Diagramm
 wichtig ist: immer von vorne nach hinten arbeiten -> background zu erst usw. denn die Objekte überdecken sich
@@ -32,14 +32,16 @@ public class Gantt extends Pane {
 
     private static final double CHART_WIDTH = 900;
 
-    private final List<Rectangle> selectedBars = new ArrayList<>();
+    // Zuordnung von Balken zu Beschriftung
+    // dadurch kann der Controller später Klicks auf Balken und Text setzen
+    private final Map<Rectangle, Text> barLabels = new HashMap<>();
 
     public Gantt(Plan plan) {
-
         draw(plan);
+    }
 
-        // Klick auf freien Bereich -> Auswahl entfernen
-        this.setOnMouseClicked(event -> clearSelection());
+    public Map<Rectangle, Text> getBarLabels() {
+        return barLabels;
     }
 
     private void draw(Plan plan) {
@@ -191,53 +193,11 @@ public class Gantt extends Pane {
             Tooltip.install(bar, tooltip);
             Tooltip.install(label, tooltip);
 
-            bar.setOnMouseClicked(event -> {
-
-                // verhindert, dass der Klick bis zum Hintergrund weitergegeben wird
-                event.consume();
-
-                // STRG gedrückt → Mehrfachauswahl
-                if (event.isControlDown()) {
-
-                    if (selectedBars.contains(bar)) {
-                        // toggle OFF
-                        bar.setStroke(Color.BLACK);
-                        bar.setStrokeWidth(1);
-                        selectedBars.remove(bar);
-                    } else {
-                        // toggle ON
-                        bar.setStroke(Color.RED);
-                        bar.setStrokeWidth(3);
-                        selectedBars.add(bar);
-                    }
-
-                } else {
-                    // normaler Klick → alles zurücksetzen
-
-                    clearSelection();
-
-                    // aktuelles auswählen
-                    bar.setStroke(Color.RED);
-                    bar.setStrokeWidth(3);
-                    selectedBars.add(bar);
-                }
-            });
-
-            label.setOnMouseClicked(bar.getOnMouseClicked());
+            // Balken und Beschriftung für den Controller merken
+            barLabels.put(bar, label);
 
             // alles zum Pane hinzufügen
             getChildren().addAll(bar, label);
         }
-    }
-
-    // entfernt alle aktuellen Markierungen
-    private void clearSelection() {
-
-        for (Rectangle selected : selectedBars) {
-            selected.setStroke(Color.BLACK);
-            selected.setStrokeWidth(1);
-        }
-
-        selectedBars.clear();
     }
 }

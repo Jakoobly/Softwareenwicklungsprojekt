@@ -1,15 +1,11 @@
 package gantt.controller;
 
 import gantt.model.Plan;
+import gantt.view.AppLayout;
 import gantt.view.Gantt;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.layout.BorderPane;
-
+import gantt.view.Menu;
 import javafx.scene.control.Alert;
-import javafx.scene.control.MenuItem;
-
-import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.layout.BorderPane;
 
 /*
 Controller-Klasse nach MVC-Prinzip
@@ -20,139 +16,31 @@ Controller-Klasse nach MVC-Prinzip
 public class GanttController {
 
     private final Plan plan;
-    private final BorderPane root;
+    private final AppLayout root;
 
     public GanttController(Plan plan) {
         this.plan = plan;
-        this.root = new BorderPane();
 
-        // Menüleiste oben platzieren
-        root.setTop(createMenuBar());
+        // Gantt-Diagramm erzeugen
+        Gantt gantt = new Gantt(plan);
 
-        // Gantt-Diagramm in die Mitte
-        root.setCenter(new Gantt(plan));
+        // Controller für Klicks / Markierungen erzeugen
+        new SelectionController(gantt);
+
+        // Menüleiste erzeugen
+        Menu menu = new Menu(
+                this::showNotImplementedMessage,
+                this::showProjectInfo,
+                () -> System.exit(0)
+        );
+
+        // Oberfläche zusammensetzen
+        this.root = new AppLayout(menu, gantt);
     }
 
     // liefert die komplette Oberfläche zurück
     public BorderPane getView() {
         return root;
-    }
-
-    // erstellt die obere Menüleiste
-    // erstellt die obere Menüleiste
-    private MenuBar createMenuBar() {
-
-        MenuBar menuBar = new MenuBar();
-
-        // ===== DATEI =====
-
-        Menu datei = new Menu("Datei");
-
-        MenuItem neu = new MenuItem("Neu");
-        MenuItem öffnen = new MenuItem("Öffnen");
-        MenuItem speichern = new MenuItem("Speichern");
-
-        // Untermenü für verschiedene Import-Arten
-        Menu importieren = new Menu("Importieren");
-
-        MenuItem bildfahrplanImport =
-                new MenuItem("Bildfahrplan");
-
-        MenuItem dienstplanImport =
-                new MenuItem("Dienstplan");
-
-        MenuItem maschinenplanImport =
-                new MenuItem("Maschinenplan");
-
-        // momentan noch nicht implementiert
-        bildfahrplanImport.setOnAction(e -> showNotImplementedMessage());
-        dienstplanImport.setOnAction(e -> showNotImplementedMessage());
-        maschinenplanImport.setOnAction(e -> showNotImplementedMessage());
-
-        // Unterpunkte zum Import-Menü hinzufügen
-        importieren.getItems().addAll(
-                bildfahrplanImport,
-                dienstplanImport,
-                maschinenplanImport
-        );
-
-        MenuItem beenden = new MenuItem("Beenden");
-
-        // ===== BEARBEITEN =====
-
-        Menu bearbeiten = new Menu("Bearbeiten");
-
-        MenuItem kopieren = new MenuItem("Kopieren");
-        MenuItem löschen = new MenuItem("Löschen");
-
-        // ===== ANSICHT =====
-
-        Menu ansicht = new Menu("Ansicht");
-
-        MenuItem zoomen = new MenuItem("Zoomen");
-        MenuItem zurücksetzen = new MenuItem("Ansicht zurücksetzen");
-
-        // ===== HILFE =====
-
-        Menu hilfe = new Menu("Hilfe");
-
-        MenuItem info = new MenuItem("Info");
-        MenuItem dokumentation = new MenuItem("Dokumentation");
-
-        // ===== FEHLERMELDUNG =====
-        // Standardmeldung für noch nicht implementierte Funktionen
-
-        neu.setOnAction(e -> showNotImplementedMessage());
-        öffnen.setOnAction(e -> showNotImplementedMessage());
-        speichern.setOnAction(e -> showNotImplementedMessage());
-
-        kopieren.setOnAction(e -> showNotImplementedMessage());
-        löschen.setOnAction(e -> showNotImplementedMessage());
-
-        zoomen.setOnAction(e -> showNotImplementedMessage());
-        zurücksetzen.setOnAction(e -> showNotImplementedMessage());
-
-        info.setOnAction(e -> showProjectInfo());
-        dokumentation.setOnAction(e -> showNotImplementedMessage());
-
-        // Programm beenden
-        beenden.setOnAction(e -> System.exit(0));
-
-        // Menüeinträge hinzufügen
-        datei.getItems().addAll(
-                neu,
-                öffnen,
-                speichern,
-                new SeparatorMenuItem(),
-                importieren,
-                new SeparatorMenuItem(),
-                beenden
-        );
-
-        bearbeiten.getItems().addAll(
-                kopieren,
-                löschen
-        );
-
-        ansicht.getItems().addAll(
-                zoomen,
-                zurücksetzen
-        );
-
-        hilfe.getItems().addAll(
-                info,
-                dokumentation
-        );
-
-        // Menüs zur Menüleiste hinzufügen
-        menuBar.getMenus().addAll(
-                datei,
-                bearbeiten,
-                ansicht,
-                hilfe
-        );
-
-        return menuBar;
     }
 
     // Standard-Fehlermeldung für nicht implementierte Funktionen
