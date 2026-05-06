@@ -161,7 +161,12 @@ public class Gantt extends Pane {
 
             // erzeugung Rechteck -> Startpunkt (x,y), Breite, Höhe
             Rectangle bar = new Rectangle(x, y, width, BAR_HEIGHT);
-            bar.setFill(Color.STEELBLUE);
+            // Farbe anhand der jeweiligen Zeile bestimmen
+            String colorValue =
+                    plan.getColors().getOrDefault(object.getRow(), "#4682B4");
+
+            // Farbe auf Balken anwenden
+            bar.setFill(Color.web(colorValue));
             bar.setStroke(Color.BLACK);
             bar.setArcWidth(8);
             bar.setArcHeight(8);
