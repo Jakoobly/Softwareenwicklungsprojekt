@@ -8,18 +8,16 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.control.Tooltip;
 
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-import javafx.scene.control.Tooltip;
-
 /* hier liegt die gesamte Logik für unser Gantt-Diagramm
 wichtig ist: immer von vorne nach hinten arbeiten -> background zu erst usw. denn die Objekte überdecken sich
  */
-
 
 public class Gantt extends Pane {
 
@@ -37,7 +35,11 @@ public class Gantt extends Pane {
     private final List<Rectangle> selectedBars = new ArrayList<>();
 
     public Gantt(Plan plan) {
+
         draw(plan);
+
+        // Klick auf freien Bereich -> Auswahl entfernen
+        this.setOnMouseClicked(event -> clearSelection());
     }
 
     private void draw(Plan plan) {
@@ -161,12 +163,14 @@ public class Gantt extends Pane {
 
             // erzeugung Rechteck -> Startpunkt (x,y), Breite, Höhe
             Rectangle bar = new Rectangle(x, y, width, BAR_HEIGHT);
+
             // Farbe anhand der jeweiligen Zeile bestimmen
             String colorValue =
                     plan.getColors().getOrDefault(object.getRow(), "#4682B4");
 
             // Farbe auf Balken anwenden
             bar.setFill(Color.web(colorValue));
+
             bar.setStroke(Color.BLACK);
             bar.setArcWidth(8);
             bar.setArcHeight(8);
@@ -189,6 +193,9 @@ public class Gantt extends Pane {
 
             bar.setOnMouseClicked(event -> {
 
+                // verhindert, dass der Klick bis zum Hintergrund weitergegeben wird
+                event.consume();
+
                 // STRG gedrückt → Mehrfachauswahl
                 if (event.isControlDown()) {
 
@@ -207,12 +214,7 @@ public class Gantt extends Pane {
                 } else {
                     // normaler Klick → alles zurücksetzen
 
-                    for (Rectangle selected : selectedBars) {
-                        selected.setStroke(Color.BLACK);
-                        selected.setStrokeWidth(1);
-                    }
-
-                    selectedBars.clear();
+                    clearSelection();
 
                     // aktuelles auswählen
                     bar.setStroke(Color.RED);
@@ -226,5 +228,16 @@ public class Gantt extends Pane {
             // alles zum Pane hinzufügen
             getChildren().addAll(bar, label);
         }
+    }
+
+    // entfernt alle aktuellen Markierungen
+    private void clearSelection() {
+
+        for (Rectangle selected : selectedBars) {
+            selected.setStroke(Color.BLACK);
+            selected.setStrokeWidth(1);
+        }
+
+        selectedBars.clear();
     }
 }
